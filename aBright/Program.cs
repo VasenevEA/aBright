@@ -48,25 +48,25 @@ namespace aBright
             {
                 try
                 {
-                    
-                    
                     var lux_mVoltage = modbusProveder.getValue<UInt16>(regLux);
                     lux = lux_mVoltage.ConvertToLux();
                     Console.Clear();
                     Console.WriteLine(modbusProveder.getValue<UInt16>(regCheck));
-                    Console.WriteLine("{0} lux  from {1} mV",lux,lux_mVoltage);
-                    
+                    Console.WriteLine("{0} lux  from {1} mV",lux,lux_mVoltage);   
                 }
                 catch (Exception)
                 {
                     Console.WriteLine("No connect");
                 }
-
                 await Task.Delay(500);
             }
         }
 
-
+        /// <summary>
+        /// Convert  mV value to lux 
+        /// </summary>
+        /// <param name="m_volts"></param>
+        /// <returns></returns>
         public static double ConvertToLux(this UInt16 m_volts)
         {
             double volts = (double)m_volts /1000;
