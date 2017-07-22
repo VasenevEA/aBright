@@ -50,7 +50,7 @@ namespace aBright
 
                     var result = Brightness.SetBrightness(bright);
 
-                    Console.SetCursorPosition(0, 1);
+                    Console.SetCursorPosition(0, 0);
                     Console.WriteLine("{0}  lux  from {1} mV     ", lux, lux_mVoltage);
                     Console.WriteLine("{0}  brightness set", bright);
                 }
@@ -58,6 +58,7 @@ namespace aBright
                 {
                     Console.WriteLine("No connect " + ex.Message);
                     await Task.Delay(1000);
+                    Console.Clear();
                 }
                 await Task.Delay(100);
             }
