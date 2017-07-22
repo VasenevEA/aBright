@@ -58,7 +58,12 @@ namespace aBright
                     Console.WriteLine(modbusProveder.getValue<UInt16>(regCheck));
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("{0}      lux  from {1}    mV", lux, lux_mVoltage);
-                    short bright = (short)((lux * max / 1000) + min);
+                    var res = lux*lux + min ;
+                    short bright = (short)res;
+                    if (bright > 150)
+                    {
+                        bright = 150;
+                    }
 
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine("{0}  brightness set", bright);
