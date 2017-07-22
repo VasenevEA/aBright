@@ -89,32 +89,5 @@ namespace aBright
                 }
             }
         }
-
-        public void setValue1<T>(IModbusConfig config, T value)
-        {
-            lock (locker)
-            {
-                var toWrite = (ushort)Convert.ChangeType(value, typeof(ushort));
-
-                SerialPort port = new SerialPort(config.portName, config.baudRate);
-                if (port.IsOpen)
-                {
-                    port.Close();
-                }
-                lock (_locker)
-                {
-                    port.Open();
-                    IModbusSerialMaster master = ModbusSerialMaster.CreateRtu(port);
-                    master.Transport.ReadTimeout = 1000;
-                    master.Transport.WriteTimeout = 1000;
-
-                    //Запись
-                    master.WriteSingleRegister(config.device_address, config.register_write_address, toWrite);
-
-                    port.Close();
-                    Thread.Sleep(100);
-                }
-            }
-        }
     }
 }

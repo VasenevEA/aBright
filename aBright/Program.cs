@@ -45,9 +45,7 @@ namespace aBright
                     var lux_mVoltage = modbusProveder.getValue<UInt16>(regLux);
                     var lux = lux_mVoltage.ConvertToLux();
 
-                    var res = Math.Pow(lux, 2);
-                    short bright = (short)res;
-
+                    short bright = (short)Math.Pow(lux, 2);
                     var result = Brightness.SetBrightness(bright);
 
                     Console.SetCursorPosition(0, 0);
