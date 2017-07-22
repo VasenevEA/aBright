@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Ports;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -8,77 +9,57 @@ namespace aBright
 {
     static class Program
     {
-        public static double lux = 0;
-        public static int min = 30;
-        public static int max = 130;
+        private static string _portName;
 
-        /// <summary>
-        /// Главная точка входа для приложения.
-        /// </summary>
+      
         [STAThread]
         static void Main()
         {
-            Brightness.SetBrightness(100);
-            Task.Factory.StartNew(updater);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
-        }
+            _portName = portFinder();
 
+            if (!String.IsNullOrEmpty(_portName))
+                Task.Factory.StartNew(updater);
+            else
+                Console.WriteLine("Port Not finded");
+
+            Console.ReadKey();
+        }
 
         private static async void updater()
         {
-            var regCheck = new ModbusConfig
-            {
-                baudRate = 9600,
-                device_address = 1,
-                portName = "COM6",
-                register_read_address = 0
-            };
             var regLux = new ModbusConfig
             {
                 baudRate = 9600,
                 device_address = 1,
-                portName = "COM6",
+                portName = _portName,
                 register_read_address = 1
             };
 
             var modbusProveder = new ModbusProvider();
 
-            //add cancelation Token
-            Console.WriteLine("start reading...");
+            //TODO: add cancelation Token
             while (true)
             {
                 try
                 {
-                    Console.WriteLine();
                     var lux_mVoltage = modbusProveder.getValue<UInt16>(regLux);
-                    lux = lux_mVoltage.ConvertToLux();
-                    Console.SetCursorPosition(0, 1);
-                    Console.WriteLine(modbusProveder.getValue<UInt16>(regCheck));
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("{0}      lux  from {1}    mV", lux, lux_mVoltage);
-                    var res = lux*lux + min ;
-                    short bright = (short)res;
-                    if (bright > 150)
-                    {
-                        bright = 150;
-                    }
+                    var lux = lux_mVoltage.ConvertToLux();
 
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("{0}  brightness set", bright);
-                    //set brightness 0-1000 to 0-256
+                    var res = Math.Pow(lux, 2);
+                    short bright = (short)res;
+
                     var result = Brightness.SetBrightness(bright);
-                    if (!result)
-                        //Brightness.SetBrightness(255);
-                        //await Task.Delay(5000);
-                        Console.WriteLine(result);
+
+                    Console.SetCursorPosition(0, 1);
+                    Console.WriteLine("{0}  lux  from {1} mV     ", lux, lux_mVoltage);
+                    Console.WriteLine("{0}  brightness set", bright);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    Console.WriteLine("No connect");
+                    Console.WriteLine("No connect " + ex.Message);
+                    await Task.Delay(1000);
                 }
-                //await Task.Delay(50);
+                await Task.Delay(100);
             }
         }
 
@@ -94,6 +75,38 @@ namespace aBright
             double microamps = amps * 1000000;
             double lux = microamps * 2.0;
             return lux;
+        }
+
+        /// <summary>
+        /// Return portName with arduino Modbus slave
+        /// </summary>
+        /// <returns></returns>
+        private static string portFinder()
+        {
+            var modbusProveder = new ModbusProvider();
+            foreach (var __portName in SerialPort.GetPortNames())
+            {
+                ///Create config for check register
+                ///reg 0 always return value = 200 
+                var regCheck = new ModbusConfig
+                {
+                    baudRate = 9600,
+                    device_address = 1,
+                    portName = __portName,
+                    register_read_address = 0
+                };
+
+                try
+                {
+                    if (modbusProveder.getValue<UInt16>(regCheck) == 200)
+                        return __portName;
+                }
+                catch (Exception)
+                {
+                    //Bad way
+                }
+            }
+            return null;
         }
     }
 }

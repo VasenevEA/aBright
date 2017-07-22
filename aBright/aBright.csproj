@@ -54,14 +54,8 @@
     <Compile Include="Abstract\IModbusConfig.cs" />
     <Compile Include="Abstract\IModbusProvider.cs" />
     <Compile Include="Brightness.cs" />
-    <Compile Include="Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ModbusConfig.cs" />
-    <Compile Include="ModbusProvider.cs" />
+    <Compile Include="Modbus\ModbusConfig.cs" />
+    <Compile Include="Modbus\ModbusProvider.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

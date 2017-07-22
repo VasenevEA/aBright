@@ -24,7 +24,8 @@ namespace aBright
 
         private static void InitializeClass()
         {
-           
+            if (initialized)
+                return;
 
             //Get the hardware device context of the screen, we can do
             //this by getting the graphics object of null (IntPtr.Zero)
@@ -67,6 +68,8 @@ namespace aBright
             //Memory allocated through stackalloc is automatically free'd
             //by the CLR.
 
+            //need init if command not extcuted
+            initialized = retVal;
             return retVal;
         }
     }
