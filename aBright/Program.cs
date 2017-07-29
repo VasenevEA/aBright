@@ -11,7 +11,7 @@ namespace aBright
     {
         private static string _portName;
 
-      
+
         [STAThread]
         static void Main()
         {
@@ -45,7 +45,7 @@ namespace aBright
                     var lux_mVoltage = modbusProveder.getValue<UInt16>(regLux);
                     var lux = lux_mVoltage.ConvertToLux();
 
-                    short bright = (short)Math.Pow(lux, 2);
+                    var bright = LuxToBright(lux);
                     var result = Brightness.SetBrightness(bright);
 
                     Console.SetCursorPosition(0, 0);
@@ -58,7 +58,7 @@ namespace aBright
                     await Task.Delay(1000);
                     Console.Clear();
                 }
-                await Task.Delay(100);
+                await Task.Delay(1000);
             }
         }
 
@@ -107,5 +107,36 @@ namespace aBright
             }
             return null;
         }
+
+
+        private static short LuxToBright(double lux)
+        {
+            short value = 0;
+
+            foreach (var item in table)
+            {
+                if (lux >= item.Key)
+                {
+                    var key = 1.0;
+                    if (lux == 0)
+                        lux = 1;
+                    if (item.Key != 0)
+                        key = item.Key;
+
+                    value = (short)(lux * (item.Value / key));
+                }
+            }
+
+            return value;
+        }
+
+        /// <summary>
+        /// key: luxes , value: brightness
+        /// </summary>
+        public static IDictionary<double, double> table = new Dictionary<double, double>
+        {
+            { 0 , 30 },
+            { 30 , 150 }
+        };
     }
 }
